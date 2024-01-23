@@ -50,7 +50,7 @@ Q = 50
 W = [M + Q * P_0 for _ in range(N)] 
 
 # Function to calculate expected price for fundamentalists
-def ep_fundamentalist(p_t, P_F)
+def ep_fundamentalist(p_t, P_F):
     """
     Calculate the expected price for a fundamentalist trader
 
@@ -62,7 +62,8 @@ def ep_fundamentalist(p_t, P_F)
     float: The expected price for the asset for a fundamentalist trader
     """
     noise = np.random.uniform(-SIGMA, SIGMA)
-    p_pf = P_F
+    # Was not too sure about using an uniform or normal distribution here
+    p_f = np.random.uniform(P_F - THETA, P_F + THETA)
     return p_t + PHI * (p_f - p_t) + noise
 
 ## TODO: 
