@@ -1,6 +1,5 @@
 
 
-
 class OrderBook:
     def __init__(self, delta, agents_dict):
         """

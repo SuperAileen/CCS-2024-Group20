@@ -29,23 +29,23 @@ def create_lattice_small_world_network():
     return lattice
 
 class Network:
+    
     def __init__(self, alpha, agents_dict, network):
         """
-        Initialize the Network object.
+        Initialize the OrderBook with the given delta value.
 
         Parameters:
-        - alpha (float): Parameter controlling information propagation.
-        - agents_dict (dict): Dictionary containing information for each agent.
-        - network (nx.Graph): Network structure.
+        - delta (float): Parameter for price adjustment.
         """
-        self.alpha = alpha
-        self.agents_dict = agents_dict
+    
+        self.agents_dict = agents_dict # Dictionary containing each agents and information
         self.network = network 
         self.state_counts = {'buy': [], 'sell': [], 'hold': []}
         self.info_counts = []
-        self.Ith = 1
-        self.trade_counts = []  # Keep track of amount of trades per simulation
-
+        self.alpha = alpha
+        self.Ith = Ith
+        self.trade_counts = [] # Keep track of amount of trades per simulation
+        
     def propagate_info(self, agent_index):
         """
         Propagate information of an agent to its neighbors in the network.
@@ -56,48 +56,29 @@ class Network:
         agent = self.agents_dict[agent_index]
         agent_coord = (agent_index // 40, agent_index % 40)  # Map index to coordinates
         neighbors_coords = list(self.network.neighbors(agent_coord))
-        
         if agent[6] >= self.Ith:  # Check if agent's information exceeds the threshold
             self.info_counts[-1] += 1
             store_info = agent[6]
             self.agents_dict[agent_index][6] = 0  # Reset agent's information
-            
             for neighbor_coord in neighbors_coords:
                 neighbor_index = neighbor_coord[0] * 40 + neighbor_coord[1]  # Map coordinates to index
-                self.agents_dict[neighbor_index][5] = agent[5]               # Propagate decision to neighbor
+                self.agents_dict[neighbor_index][5] = agent[5]   # Propagate decision to neighbor
                 self.agents_dict[neighbor_index][4] = agent[4]
                 self.agents_dict[neighbor_index][7] = agent[7]
                 self.agents_dict[neighbor_index][6] += (self.alpha / len(neighbors_coords)) * store_info
                 self.agents_dict[neighbor_index][6] = min(self.agents_dict[neighbor_index][6], np.finfo(float).max)
-                
                 if self.agents_dict[neighbor_index][6] >= self.Ith:
-                    self.propagate_info(neighbor_index)    # Recursive call
-
+                    self.propagate_info(neighbor_index)  # Recursive call
 
     def network_cycle(self):
         """
         Update the network for one simulation cycle and collect information for future plots.
-
-        This method updates the network for a single simulation cycle, including updating agent information and
-        implementing the contagion mechanism. It also collects information necessary for future plots.
-
-        Parameters:
-            None
-
-        Returns:
-            None
         """
         self.info_counts.append(0)  # Reset agent information threshold crossing counter
-        
-        # Make a copy of agents' information to prevent unintended modifications during iteration
         copy_agents = self.agents_dict.copy()
-
         # Add global information
         for agent_id in self.agents_dict:
-            # Update each agent's information with a random increment within a range
             self.agents_dict[agent_id][6] += np.random.uniform(0, (self.Ith - max([copy_agents[agent_id][6] for agent_id in copy_agents])))
-        
         # Contagion mechanism
         for i, _ in enumerate(self.agents_dict):
-            # Propagate information among agents
             self.propagate_info(i)
