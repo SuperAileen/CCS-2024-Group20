@@ -39,9 +39,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Calvin Law
 - Dan Dong
 - Divyaben Hasmukhbhai Gajera
-- Lingyuan Liu
+- Lingyuan Liu 
 
-## Task Distribution
+## Reference
+Biondo, A. E., Pluchino, A., & Rapisarda, A. (2016). Order book, financial markets, and self-organized criticality. Chaos, Solitons & Fractals, 88, 196-208.
 
 
 
