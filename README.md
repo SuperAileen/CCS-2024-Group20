@@ -33,7 +33,7 @@ To run the project, you will need the following Python libraries:
 - `matplotlib`: For plotting and visualizing data.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License - see the [LICENSE](LICENSE) file for details.
 
 ## Authors
 - Calvin Law
