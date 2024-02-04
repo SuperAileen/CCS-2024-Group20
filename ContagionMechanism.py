@@ -1,6 +1,7 @@
 import random
 import networkx as nx
 import numpy as np
+from Constants import *
 
 
 def create_lattice_small_world_network():
