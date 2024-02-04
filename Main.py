@@ -5,16 +5,6 @@ from ContagionMechanism import *
 from OrderBook import *
 from Constants import *
 
-# Initialize agent attributes at T = 0
-# structure of agent data
-# agents = np.zeros(N, dtype=[('type', 'U10'),# 0
-#                             ('wealth', 'f8'),# 1
-#                             ('money', 'f8'), # 2
-#                             ('assets', 'f8'), # 3
-#                             ('expected_price', 'f8'), # 4
-#                             ('decision', 'U10'), # 5
-#                             ('info', 'f8')]) # 6
-#                             ('order price') # 7
 
 # Initialize dictionary to hold agent information
 agents_dict = {}
@@ -80,7 +70,7 @@ with open('nw_object.pkl', 'wb') as file:
 # Simulation 1 cycle
 # ob = OrderBook(DELTA, agents_dict)
 current_market_price = P_0
-simulations = 10000
+simulations = 9000
 asset_prices = []
 
 # Run the simulation for a specified number of times
@@ -123,18 +113,105 @@ for sim in range(simulations):
     nw.network_cycle()
 
 # Plot asset prices at different time steps
-plt.figure().set_figwidth(15)
-plt.plot(list(range(110)), asset_prices[:110], label='asset price')
-plt.axhline(y=120, color='r', linestyle='--', label='fundamental price 120')
-plt.xlabel("Time Steps")
-plt.ylabel("Global Asset Price")
-plt.legend()
-plt.savefig("asset_price_t_110.png")
 
 plt.figure().set_figwidth(15)
 plt.plot(list(range(len(asset_prices))), asset_prices, label='asset price')
 plt.axhline(y=120, color='r', linestyle='--', label='fundamental price 120')
 plt.xlabel("Time Steps")
-plt.ylabel("Global Asset Price")
+plt.ylabel("Asset Price")
 plt.legend()
-plt.savefig("asset_price_t_10000.png")
+plt.savefig("Asset Price 9000 Timestep.png")
+
+
+
+
+
+
+
+# Calculate and Plot the return distribution
+asset_prices_subset = asset_prices
+
+# Calculate returns rt
+rt = np.log(asset_prices_subset[1:]) - np.log(asset_prices_subset[:-1])
+
+# Calculate average return and standard deviation
+r_avg = np.mean(rt)
+r_stdev = np.std(rt)
+
+# Calculate normalized returns r^NORM
+r_norm = (rt - r_avg) / r_stdev
+r_norm_filtered = r_norm[(r_norm > -3) & (r_norm < 3)]
+
+# Plot the asset price time series
+plt.figure().set_figwidth(15)
+plt.plot(asset_prices_subset, color='steelblue')
+plt.axhline(y=120, color='r', linestyle='--')
+plt.title('Asset Price Time Series (First 2000 Points)')
+plt.xlabel('Time Steps')
+plt.ylabel('Asset Price')
+plt.show()
+
+# Plot the normalized returns time series
+plt.figure().set_figwidth(15)
+plt.plot(r_norm, color='black')
+plt.axhline(y=0, color='r', linestyle='--')
+plt.title('Normalized Returns (First 2000 Points)')
+plt.xlabel('Time Steps')
+plt.ylabel('Normalized Returns')
+plt.show()
+
+# Calculate the probability density function (PDF) of the normalized returns
+counts, bin_edges = np.histogram(r_norm, bins=200, density=True)
+bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+# Plot the PDF of the normalized returns
+plt.figure(figsize=(10, 6))
+plt.scatter(bin_centers, counts, label='OB-CFP Model', color='blue')
+
+# Definition of the q-Gaussian function
+def q_gaussian(x, A, B, q):
+    return A * np.power(1 - (1 - q) * B * np.power(x, 2), 1 / (1 - q))
+
+# Parameters for the q-Gaussian
+A = 0.98
+B = 7
+q_list = np.arange(1.3, 2.0, 0.1)  # Including q=2.0 as per the plot in the provided image
+
+# Plot the q-Gaussian
+for q in q_list:
+    plt.plot(bin_centers, q_gaussian(bin_centers, A, B, q), label=f'q-Gaussian q={q:.1f}')
+
+# Set x-axis and y-axis limits
+plt.xlim(-10, 10)
+plt.ylim(10**-3, 10**0.4) 
+plt.yscale('log')
+plt.xlabel('Normalized Returns')
+plt.ylabel('Probability Density')
+plt.legend()
+plt.show()
+
+
+# Plot the evolution of asset, money, and wealth distribution
+
+fig, axs = plt.subplots(4, 3, figsize=(15, 20)) 
+
+
+# Colors for different plots
+colors = ['red', 'blue', 'green']
+
+# Iterate through each timestep and each data type to plot
+for i, (t, data_dict) in enumerate(data_at_timesteps.items()):
+    axs[i, 0].hist(data_dict['asset_quantities'], bins=30, color=colors[0])
+    axs[i, 1].hist(data_dict['monies'], bins=30, color=colors[1])
+    axs[i, 2].hist(data_dict['total_wealths'], bins=30, color=colors[2])
+    
+    # Set titles and axis labels for each subplot
+    axs[i, 0].set_title(f'Asset Quantity at t={t}')
+    axs[i, 1].set_title(f'Money at t={t}')
+    axs[i, 2].set_title(f'Total Wealth at t={t}')
+    
+# Adjust spacing between subplots
+plt.tight_layout()
+plt.show()
+
+
