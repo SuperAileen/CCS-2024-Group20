@@ -3,6 +3,7 @@ import pickle
 from HelpingFunctions import *
 from ContagionMechanism import *
 from OrderBook import *
+from Constants import *
 
 # Initialize agent attributes at T = 0
 # structure of agent data
