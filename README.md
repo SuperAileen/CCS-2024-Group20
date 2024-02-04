@@ -7,14 +7,13 @@ In this project, we challenge the standard financial theories that assume homoge
 ## Getting Started
 
 ## Usage
-Run all the cells in the Jupyter notebook file `redo_main.ipynb`, `redo_main-figures_in_page_21_12_in_ppt.ipynb` and `redo_return_price_QMW_distribution.ipynb` to get the visual results.
+Run all the cells in the Jupyter notebook file `Main.py` to get the visual results.
 
 ### Scripts
 
 - `Constants.py`: Contains the parameters used across the models.
 - `ContagionMechanism.py`: Defines the contagion mechanism of the model.
 - `HelpingFunctions.py`: Utility functions used for various purposes within the model.
-- `Main.py`: The main script that initializes and runs the simulations.
 - `OrderBook.py`: Implements the order book mechanism of the asset market.
 
 ### Results
