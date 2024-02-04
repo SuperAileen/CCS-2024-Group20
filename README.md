@@ -7,7 +7,7 @@ In this project, we challenge the standard financial theories that assume homoge
 ## Getting Started
 
 ## Usage
-Run all the cells in the Jupyter notebook file `Main.py` to get the visual results.
+Run all the cells in the file `Main.py` to get the visual results.
 
 ### Scripts
 
