@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import pickle
 from HelpingFunctions import *
-from ContagianMechanism import *
+from ContagionMechanism import *
 from OrderBook import *
 
 # Initialize agent attributes at T = 0
