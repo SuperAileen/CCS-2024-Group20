@@ -6,6 +6,8 @@ from OrderBook import *
 from Constants import *
 
 
+# ### Agents data creation
+
 # Initialize dictionary to hold agent information
 agents_dict = {}
 
@@ -44,6 +46,8 @@ for agent_id in agents_dict:
     order_price = set_order_price(decision, agents_dict[agent_id][4], P_0, agents_dict[agent_id][2])
     agents_dict[agent_id][7] = order_price
 
+# ### Creating the network & Avalanche visualisation
+
 # Create network structure
 network = create_lattice_small_world_network()
 
@@ -51,10 +55,21 @@ network = create_lattice_small_world_network()
 ob = OrderBook(DELTA, agents_dict)
 nw = Network(ALPHA, ob.agents_dict, network)
 
-# Run network cycle for a specified number of times
-for cycle in range(10000):
-    print("i", cycle)
-    nw.network_cycle()
+# The following cell if one were to uncomment the first few lines, you would recreate the simulation where the networks runs 10000 times which is approximately where $T_{SOC}$ is. To save time this is already done by getting it from a pickle file which already ran this.
+
+# +
+# # Run network cycle for a specified number of times
+# for cycle in range(10000):
+#     print("i", cycle)
+#     nw.network_cycle()
+
+# # Save the Network object to a file
+# with open('nw_object.pkl', 'wb') as file:
+#     pickle.dump(nw, file)
+    
+with open('nw_object.pkl', 'rb') as input_file:
+    nw = pickle.load(input_file)
+# -
 
 # Plot the size of information avalanches over time
 plt.plot(range(len(nw.info_counts)), nw.info_counts)
@@ -63,15 +78,13 @@ plt.ylabel("Size of Info Avalanche")
 plt.title("Time Series of Info Avalanches")
 plt.savefig("Avalanche.png")
 
-# Save the Network object to a file
-with open('nw_object.pkl', 'wb') as file:
-    pickle.dump(nw, file)
+# ### Running the simulations
 
 # Simulation 1 cycle
-# ob = OrderBook(DELTA, agents_dict)
 current_market_price = P_0
 simulations = 9000
 asset_prices = []
+data_at_timesteps = {0: {}, 100: {}, 1000: {}, 9000: {}}
 
 # Run the simulation for a specified number of times
 for sim in range(simulations):
@@ -91,6 +104,17 @@ for sim in range(simulations):
     asset_prices.append(current_market_price)
     past_price.pop(0)
     past_price.append(current_market_price)
+
+     # Check if the current simulation step is one of the timesteps we're interested in
+    if sim in data_at_timesteps:
+        # Collect the data for this timestep
+        asset_quantities_at_t = [agent[3] for agent in ob.agents_dict.values()]
+        monies_at_t = [agent[2] for agent in ob.agents_dict.values()]
+        total_wealths_at_t = [m + current_market_price * q for m, q in zip(monies_at_t, asset_quantities_at_t)]
+
+        data_at_timesteps[sim]['asset_quantities'] = asset_quantities_at_t
+        data_at_timesteps[sim]['monies'] = monies_at_t
+        data_at_timesteps[sim]['total_wealths'] = total_wealths_at_t
 
     # Update fundamentalist and chartist agents' expected prices and decisions
     for agent_id in range(N_FUND):
@@ -112,7 +136,7 @@ for sim in range(simulations):
     nw = Network(ALPHA, ob.agents_dict, network)
     nw.network_cycle()
 
-# Plot asset prices at different time steps
+# ### Plot asset prices at different time steps
 
 plt.figure().set_figwidth(15)
 plt.plot(list(range(len(asset_prices))), asset_prices, label='asset price')
@@ -122,12 +146,7 @@ plt.ylabel("Asset Price")
 plt.legend()
 plt.savefig("Asset Price 9000 Timestep.png")
 
-
-
-
-
-
-
+# +
 # Calculate and Plot the return distribution
 asset_prices_subset = asset_prices
 
@@ -141,6 +160,7 @@ r_stdev = np.std(rt)
 # Calculate normalized returns r^NORM
 r_norm = (rt - r_avg) / r_stdev
 r_norm_filtered = r_norm[(r_norm > -3) & (r_norm < 3)]
+# -
 
 # Plot the asset price time series
 plt.figure().set_figwidth(15)
@@ -164,9 +184,6 @@ plt.show()
 counts, bin_edges = np.histogram(r_norm, bins=200, density=True)
 bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
-# Plot the PDF of the normalized returns
-plt.figure(figsize=(10, 6))
-plt.scatter(bin_centers, counts, label='OB-CFP Model', color='blue')
 
 # Definition of the q-Gaussian function
 def q_gaussian(x, A, B, q):
@@ -176,6 +193,11 @@ def q_gaussian(x, A, B, q):
 A = 0.98
 B = 7
 q_list = np.arange(1.3, 2.0, 0.1)  # Including q=2.0 as per the plot in the provided image
+
+# +
+# Plot the PDF of the normalized returns
+plt.figure(figsize=(10, 6))
+plt.scatter(bin_centers, counts, label='OB-CFP Model', color='blue')
 
 # Plot the q-Gaussian
 for q in q_list:
@@ -189,12 +211,12 @@ plt.xlabel('Normalized Returns')
 plt.ylabel('Probability Density')
 plt.legend()
 plt.show()
+# -
 
+# ### Plot the evolution of asset, money, and wealth distribution
 
-# Plot the evolution of asset, money, and wealth distribution
-
+# +
 fig, axs = plt.subplots(4, 3, figsize=(15, 20)) 
-
 
 # Colors for different plots
 colors = ['red', 'blue', 'green']
@@ -213,5 +235,10 @@ for i, (t, data_dict) in enumerate(data_at_timesteps.items()):
 # Adjust spacing between subplots
 plt.tight_layout()
 plt.show()
+# -
+
+
+
+
 
 
