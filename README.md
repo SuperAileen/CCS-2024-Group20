@@ -32,6 +32,9 @@ To run the project, you will need the following Python libraries:
 - `scipy`: For scientific computing and technical computing.
 - `matplotlib`: For plotting and visualizing data.
 
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ## Authors
 - Calvin Law
 - Dan Dong
